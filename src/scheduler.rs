@@ -1,6 +1,8 @@
 use async_std::prelude::*;
-use async_std::sync::{channel, Receiver, Sender};
-use async_std::task;
+use async_std::{
+    channel::{bounded as channel, Receiver, Sender},
+    task,
+};
 
 use crate::context::Context;
 use crate::dc_tools::maybe_add_time_based_warnings;
@@ -54,7 +56,7 @@ async fn inbox_loop(ctx: Context, started: Sender<()>, inbox_handlers: ImapConne
 
     let ctx1 = ctx.clone();
     let fut = async move {
-        started.send(()).await;
+        started.send(()).await.unwrap();
         let ctx = ctx1;
 
         // track number of continously executed jobs
@@ -103,7 +105,7 @@ async fn inbox_loop(ctx: Context, started: Sender<()>, inbox_handlers: ImapConne
         })
         .race(fut)
         .await;
-    shutdown_sender.send(()).await;
+    shutdown_sender.send(()).await.unwrap();
 }
 
 async fn fetch(ctx: &Context, connection: &mut Imap) {
@@ -182,7 +184,7 @@ async fn simple_imap_loop(
     let ctx1 = ctx.clone();
 
     let fut = async move {
-        started.send(()).await;
+        started.send(()).await.unwrap();
         let ctx = ctx1;
 
         loop {
@@ -197,7 +199,7 @@ async fn simple_imap_loop(
         })
         .race(fut)
         .await;
-    shutdown_sender.send(()).await;
+    shutdown_sender.send(()).await.unwrap();
 }
 
 async fn smtp_loop(ctx: Context, started: Sender<()>, smtp_handlers: SmtpConnectionHandlers) {
@@ -213,7 +215,7 @@ async fn smtp_loop(ctx: Context, started: Sender<()>, smtp_handlers: SmtpConnect
 
     let ctx1 = ctx.clone();
     let fut = async move {
-        started.send(()).await;
+        started.send(()).await.unwrap();
         let ctx = ctx1;
 
         let mut interrupt_info = Default::default();
@@ -241,7 +243,7 @@ async fn smtp_loop(ctx: Context, started: Sender<()>, smtp_handlers: SmtpConnect
         })
         .race(fut)
         .await;
-    shutdown_sender.send(()).await;
+    shutdown_sender.send(()).await.unwrap();
 }
 
 impl Scheduler {
@@ -276,7 +278,7 @@ impl Scheduler {
                 .await
             }));
         } else {
-            mvbox_start_send.send(()).await;
+            mvbox_start_send.send(()).await.unwrap();
         }
 
         if ctx.get_config_bool(Config::SentboxWatch).await {
@@ -291,7 +293,7 @@ impl Scheduler {
                 .await
             }));
         } else {
-            sentbox_start_send.send(()).await;
+            sentbox_start_send.send(()).await.unwrap();
         }
 
         let ctx1 = ctx.clone();
@@ -437,7 +439,7 @@ impl ConnectionState {
     /// Shutdown this connection completely.
     async fn stop(&self) {
         // Trigger shutdown of the run loop.
-        self.stop_sender.send(()).await;
+        self.stop_sender.send(()).await.unwrap();
         // Wait for a notification that the run loop has been shutdown.
         self.shutdown_receiver.recv().await.ok();
     }

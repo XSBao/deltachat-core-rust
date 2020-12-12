@@ -298,7 +298,7 @@ async fn start(args: Vec<String>) -> Result<(), Error> {
         .output_stream(OutputStreamType::Stdout)
         .build();
     let mut selected_chat = ChatId::default();
-    let (reader_s, reader_r) = async_std::sync::channel(100);
+    let (reader_s, reader_r) = async_std::channel::bounded(100);
     let input_loop = async_std::task::spawn_blocking(move || {
         let h = DcHelper {
             completer: FilenameCompleter::new(),

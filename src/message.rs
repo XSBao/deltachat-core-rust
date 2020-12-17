@@ -110,7 +110,7 @@ impl MsgId {
         context
             .sql
             .execute(
-                "UPDATE msgs SET chat_id=?, txt='', txt_raw='' WHERE id=?",
+                "UPDATE msgs SET chat_id=?, txt='', txt_raw='', mime_headers='' WHERE id=?",
                 paramsv![chat_id, self],
             )
             .await?;

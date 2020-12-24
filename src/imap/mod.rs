@@ -125,7 +125,7 @@ impl Default for ImapConfig {
         ImapConfig {
             addr: "".into(),
             lp: Default::default(),
-            strict_tls: false,
+            strict_tls: true,
             oauth2: false,
             selected_folder: None,
             selected_mailbox: None,
@@ -372,7 +372,7 @@ impl Imap {
             let provider = get_provider_info(&addr);
             config.strict_tls = match lp.certificate_checks {
                 CertificateChecks::Automatic => {
-                    provider.map_or(false, |provider| provider.strict_tls)
+                    provider.map_or(true, |provider| provider.strict_tls)
                 }
                 CertificateChecks::Strict => true,
                 CertificateChecks::AcceptInvalidCertificates

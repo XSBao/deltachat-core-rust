@@ -153,7 +153,7 @@ impl Smtp {
 
         let provider = get_provider_info(addr);
         let strict_tls = match lp.certificate_checks {
-            CertificateChecks::Automatic => provider.map_or(false, |provider| provider.strict_tls),
+            CertificateChecks::Automatic => provider.map_or(true, |provider| provider.strict_tls),
             CertificateChecks::Strict => true,
             CertificateChecks::AcceptInvalidCertificates
             | CertificateChecks::AcceptInvalidCertificates2 => false,
